@@ -53,3 +53,46 @@
 ##### 查看支付状态
 #### 8、线上部署
 ##### 阿里云部署
+
+
+
+## git的一些命令
+### Git是一款免费并且开源的分布式版本控制系统
+#### 基础配置
+##### 配置用户名
+###### git config --global user.name "用户名"
+##### 配置邮箱
+###### git config --global user.email "邮箱"
+##### 配置编码形式
+###### 避免git gui中的中文乱码   git config --global gui.encoding utf-8
+###### 避免git status显示的中文文件名乱码   git config --global core.quotepath off
+##### 配置其他
+###### git config --global core.ignorepath false
+##### git ssh key pair配置
+###### ssh-keygen -t rsa -C "邮箱名"
+##### 创建本地仓库
+###### git init
+##### 添加到暂存区
+###### git add
+##### 提交到本地仓库
+###### git commit -m "描述"
+##### 检查工作区文件状态
+###### git status
+##### 查看已提交的状态
+###### git log
+##### 版本回退
+###### git reset --hard
+##### 查看分支
+###### git branch
+##### 创建和切换到dev分支
+###### git checkout -b dev
+##### 切换分支
+###### git checkout 分支名
+##### 拉取
+###### git pull
+##### 提交到远程仓库
+###### git push -u origin master
+##### 分支合并
+###### git merge 分支名
+##### 提交所有
+###### git add .
