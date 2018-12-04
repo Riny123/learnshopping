@@ -104,3 +104,10 @@
 ###### git add .
 ##### 连接远程仓库
 ###### git remote add origin 地址
+# ----------2018-12-04-----------
+##### 远程分支的合并
+###### git checkout dev
+###### git pull origin dev
+###### git checkout master
+###### git merge dev
+###### git push origin master
