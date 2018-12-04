@@ -103,4 +103,4 @@
 ##### 提交所有到暂存区
 ###### git add .
 ##### 连接远程仓库
-###### git remote add 地址
+###### git remote add origin 地址
