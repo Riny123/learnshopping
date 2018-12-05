@@ -260,3 +260,78 @@ primary key(`id`)
         接口  和  实现类
 四、DAO层（跟数据库的交互:增删改查，dao层负责对数据库的增删改查）
 ```
+
+# ----------------Mybastis-generator插件---------------
+
+# ----------------搭建ssm框架---------------
+# ----------------Controller层---------------
+```
+/*@Controller直接跳转到前端页面*/
+/*@RestController往前端返回的是一个json的数据*/
+@RestController
+@RequestMapping(value = "/portal/user/")
+public class TestController {
+
+    @Autowired
+    IUserService iUserService;
+
+    @RequestMapping(value = "login.do")
+    /*@RequestParam的value值必须与要传入的值相对应*/
+    public int login(@RequestParam(value = "username") String username,
+                          @RequestParam(value = "password") String password,
+                          @RequestParam(value = "email") String email,
+                          @RequestParam(value = "phone") String phone,
+                          @RequestParam(value = "question")String question,
+                          @RequestParam(value = "answer")String answer){
+        UserInfo userInfo = new UserInfo();
+        userInfo.setUsername(username);
+        userInfo.setPassword(password);
+        userInfo.setEmail(email);
+        userInfo.setPhone(phone);
+        userInfo.setQuestion(question);
+        userInfo.setAnswer(answer);
+        userInfo.setRole(1);
+        userInfo.setCreateTime(new Date());
+        userInfo.setUpdateTime(new Date());
+        int count = iUserService.register(userInfo);
+        return count;
+    }
+```
+```
+    @RequestMapping(value = "login.do")
+    /**@RequestParam里面的参数：
+     *                            value：里面的值必须与闯入的参数值相同，
+     *                                   如果value值与后面定义的形参名字相同，可以不加该注释
+     *                            required：默认值为true，代表参数是必须传递的，不传就报错，可以设置为false，可传可不传
+     *                            defaultValue：假如有value值，后面设置为false，给它一个默认值
+    */
+    public int login(String username, String password, String email, String phone, String question, String answer){
+        UserInfo userInfo = new UserInfo();
+        userInfo.setUsername(username);
+        userInfo.setPassword(password);
+        userInfo.setEmail(email);
+        userInfo.setPhone(phone);
+        userInfo.setQuestion(question);
+        userInfo.setAnswer(answer);
+        userInfo.setRole(1);
+        userInfo.setCreateTime(new Date());
+        userInfo.setUpdateTime(new Date());
+        int count = iUserService.register(userInfo);
+        return count;
+    }
+
+```
+```
+@RequestMapping(value = "login.do")
+    /**@RequestParam里面的参数：
+     *                            value：里面的值必须与闯入的参数值相同，
+     *                                   如果value值与后面定义的形参名字相同，可以不加该注释
+     *                                   也可以在省略，直接对象绑定，用对象接收
+     *                            required：默认值为true，代表参数是必须传递的，不传就报错，可以设置为false，可传可不传
+     *                            defaultValue：假如有value值，后面设置为false，给它一个默认值
+    */
+    public int login(UserInfo userInfo){
+        int count = iUserService.register(userInfo);
+        return count;
+    }
+```
