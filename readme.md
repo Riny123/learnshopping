@@ -251,3 +251,12 @@ create table neuedu_shipping(
 primary key(`id`)
 )ENGINE=INNODB default charset=utf8;
 ```
+
+# ---------------项目架构--基于四层架构-----------------
+```
+一、视图层（能看见页面，表单）
+二、控制层（Controller层并且调用业务逻辑层）
+三、业务逻辑层（Service层:处理业务逻辑并且调用DAO层）
+        接口  和  实现类
+四、DAO层（跟数据库的交互:增删改查，dao层负责对数据库的增删改查）
+```
