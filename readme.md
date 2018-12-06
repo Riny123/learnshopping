@@ -128,7 +128,7 @@ create table neuedu_user(
 `phone` varchar(11) not null comment '联系方式',
 `question` varchar(100) not null comment '密保问题',
 `answer` varchar(100) not null comment '答案',
-`role` int(4) not null default 0 comment '用户角色',
+`role` int(4) not null default 0 comment '用户角色 0:普通用户 1:管理员 2:高级管理员',
 `create_time` datetime comment '创建时间',
 `update_time` datetime comment '修改时间',
 primary key(`id`),
@@ -262,8 +262,312 @@ primary key(`id`)
 ```
 
 # ----------------Mybastis-generator插件---------------
+## 直接生成实体类，dao层，映射文件
+### 一、先导入两个包
+```
+    <!-- mysql驱动包 -->
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>5.1.47</version>
+    </dependency>
 
+    <!--mybatis-generator依赖-->
+    <dependency>
+      <groupId>org.mybatis.generator</groupId>
+      <artifactId>mybatis-generator-core</artifactId>
+      <version>1.3.5</version>
+    </dependency>
+```
+### 二、在配置generatorConfig.xml
+```
+    <generatorConfiguration>
+        <!--加载数据库-->
+        <properties resource="书写的加载驱动的文件名"></properties>
+        <!--配置mysql的驱动包jar-->
+        <classPathEntry location="MySql的文件的路径/文件名"/>
+        <context id="context" targetRuntime="MyBatis3Simple">
+            <commentGenerator>
+                <property name="suppressAllComments" value="false"/>
+                <property name="suppressDate" value="true"/>
+            </commentGenerator>
+            <jdbcConnection userId="${jdbc.username}" password="${jdbc.password}" driverClass="${jdbc.driver}" connectionURL="${jdbc.url}"/>
+    
+            <javaTypeResolver>
+                <property name="forceBigDecimals" value="false"/>
+            </javaTypeResolver>
+            <!-- 实体类-->
+            <javaModelGenerator targetPackage="实体类的包" targetProject="实体类在哪个目录下">
+                <property name="enableSubPackages" value="false"/>
+                <property name="trimStrings" value="true"/>
+            </javaModelGenerator>
+            <!--配置sql文件-->
+            <sqlMapGenerator targetPackage="dao层映射文件所在包" targetProject="映射文件所在的目录下">
+                <property name="enableSubPackages" value="false"/>
+            </sqlMapGenerator>
+            <!--生成Dao接口-->
+            <javaClientGenerator targetPackage="存在dao接口的包" type="XMLMAPPER" targetProject="dao接口所在的目录下">
+                <property name="enableSubPackages" value="false"/>
+            </javaClientGenerator>
+    
+            <!--配置数据表-->
+            <!--第一个参数是数据表的名字，第二个参数是给数据表起的实体类的名字-->
+            <table  tableName="neuedu_user" domainObjectName="UserInfo"  enableCountByExample="false" enableDeleteByExample="false"
+                   enableSelectByExample="false" enableUpdateByExample="false"/>
+        </context>
+    </generatorConfiguration>
+```
+### 三、自动生成实体类，dao接口，dao的映射文件
+```
+idea右侧有一个MavenProjects，点击
+有一个弹出框选择mybatis-generator
+在点击里面的mybatis-generator:generate，就OK了！
+```
 # ----------------搭建ssm框架---------------
+## 一、先导入jar包
+```
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <spring.version>4.2.0.RELEASE</spring.version>
+    </properties>
+    
+<dependencies>
+    <!--JUNIT单元测测试-->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- mysql驱动包 -->
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>5.1.47</version>
+    </dependency>
+
+    <!--mybatis依赖-->
+    <dependency>
+      <groupId>org.mybatis</groupId>
+      <artifactId>mybatis</artifactId>
+      <version>3.4.5</version>
+    </dependency>
+    <!--mybatis-generator依赖-->
+    <dependency>
+      <groupId>org.mybatis.generator</groupId>
+      <artifactId>mybatis-generator-core</artifactId>
+      <version>1.3.5</version>
+    </dependency>
+    <!--mybatis集成spring依赖包-->
+    <dependency>
+      <groupId>org.mybatis</groupId>
+      <artifactId>mybatis-spring</artifactId>
+      <version>1.3.0</version>
+    </dependency>
+    <!--数据库连接池-->
+    <dependency>
+      <groupId>com.mchange</groupId>
+      <artifactId>c3p0</artifactId>
+      <version>0.9.5</version>
+    </dependency>
+    <!--spring核心依赖-->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <!--spring web项目的依赖-->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <!--事务管理-->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <!--servlet依赖-->
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>3.1.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>RELEASE</version>
+    </dependency>
+    <dependency>
+      <groupId>jstl</groupId>
+      <artifactId>jstl</artifactId>
+      <version>1.2</version>
+    </dependency>
+
+    <!--日志框架Logback的依赖-->
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.1.2</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
+      <version>1.1.2</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <!--json解析依赖-->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.5.4</version>
+    </dependency>
+
+    <!--guava缓存-->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>22.0</version>
+    </dependency>
+
+    <!--mybatis-pagehelper -->
+    <dependency>
+      <groupId>com.github.pagehelper</groupId>
+      <artifactId>pagehelper</artifactId>
+      <version>4.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.miemiedev</groupId>
+      <artifactId>mybatis-paginator</artifactId>
+      <version>1.2.17</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.jsqlparser</groupId>
+      <artifactId>jsqlparser</artifactId>
+      <version>0.9.4</version>
+    </dependency>
+    <!--joda-time-->
+    <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+      <version>2.3</version>
+    </dependency>
+    <!--图片上传-->
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+      <version>1.3</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.2</version>
+    </dependency>
+
+    <!--ftpclient-->
+    <dependency>
+      <groupId>commons-net</groupId>
+      <artifactId>commons-net</artifactId>
+      <version>3.1</version>
+    </dependency>
+
+    <!-- alipay -->
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.10</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-configuration</groupId>
+      <artifactId>commons-configuration</artifactId>
+      <version>1.10</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.6</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.zxing</groupId>
+      <artifactId>core</artifactId>
+      <version>2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-core</artifactId>
+      <version>1.3</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/redis.clients/jedis -->
+    <dependency>
+      <groupId>redis.clients</groupId>
+      <artifactId>jedis</artifactId>
+      <version>2.8.0</version>
+    </dependency>
+</dependencies>
+
+<build>
+    <finalName>shopping</finalName>
+    /*写上这个，必须在这个位置*/
+      <plugins>
+          <plugin>
+              <groupId>org.mybatis.generator</groupId>
+              <artifactId>mybatis-generator-maven-plugin</artifactId>
+              <version>1.3.6</version>
+              <configuration>
+                  <verbose>true</verbose>
+                  <overwrite>true</overwrite>
+              </configuration>
+          </plugin>
+```
+## 二、设置配置文件
+```
+xml文件
+```
+## 三、封装返回前端的高复用对象ServerResponse
+```
+返回前端的三个参数：int status
+                     T   data
+                    String msg
+生成set，get方法，设置只能本类调用（private）的构造方法
+然后提供供外界访问的方法：访问成功：判断接口返回时的情况
+                          访问失败：判断接口返回时的情况
+                          判断该接口是否被调用
+```
+```
+/*当对ServerReaponse这个对象转成json字符串的时候，空的字符串就可以不显示*/
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+```
+```
+/*在转json的时候这个字段自动忽略掉*/
+@JsonIgnore
+```
 # ----------------Controller层---------------
 ```
 /*@Controller直接跳转到前端页面*/
@@ -335,7 +639,7 @@ public class TestController {
         return count;
     }
 ```
-# ----------------------2018-12-05：项目登录接口--------------------------
+# -----------2018-12-05：项目登录接口-----------------
 ## ------------------登录------------------
 ### 先根据接口文档编写controller层，然后对应其业务逻辑层
 ### service层的接口实现按照步骤来完成
