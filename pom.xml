@@ -194,6 +194,7 @@
       <artifactId>commons-configuration</artifactId>
       <version>1.10</version>
     </dependency>
+    <!--提供了一些常用的校验方法-->
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>

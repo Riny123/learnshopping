@@ -6,6 +6,11 @@ import com.neuedu.pojo.UserInfo;
 public interface IUserService {
 
     /**
+     * 登录
+     */
+    public ServerReponse login(String username,String password);
+
+    /**
      * 注册
      * @param userInfo
      * @return

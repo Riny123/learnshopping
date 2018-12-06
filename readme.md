@@ -335,3 +335,46 @@ public class TestController {
         return count;
     }
 ```
+# ----------------------2018-12-05：项目登录接口--------------------------
+## ------------------登录------------------
+### 先根据接口文档编写controller层，然后对应其业务逻辑层
+### service层的接口实现按照步骤来完成
+```
+//step1:进行参数的非空校验
+//step2:检查username是否存在
+//step3:根据用户名和密码查询
+//step4:处理结果并返回
+```
+### 进行参数的非空校验先用简单的方式
+```
+if (username == null || username.equals("")){
+   return ServerReponse.createServerResponseByError("用户名不能为空");
+}
+if (password == null || password.equals("")){
+    return ServerReponse.createServerResponseByError("密码不能为空");
+}
+```
+### 进行参数校验的时候apache组件提供了一些校验的组件
+```
+<!--提供了一些常用的校验方法-->
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.6</version>
+    </dependency>
+    
+StringUtils.isBlank()判断字符串是不是空的，有一种特殊形式是" "直接判断字符串是空
+StringUtils.isEmpty()判断字符串是不是空的，它不能判断" "是空的
+```
+### 检查username是否存在
+#### 直接在dao接口中声明方法，然后在dao接口的mapper里面实现sql语句；
+#### mapper里面sql语句中有属性
+```
+1：id：与dao接口中的方法名相同
+2：parameterType参数类型：如果dao接口中参数只有一个，其参数类型就为该参数类型
+                          如果dao接口中参数为多个，其参数类型为map
+3：resultType返回结果类型：如果dao接口中参数只有一个，返回结果类型就为dao接口中方法的返回值类型
+3：resultMap返回结果类型：如果dao接口中参数为多个，返回结果类型就为BaseResultMap
+```
+#### 如果在dao接口中声明方法时的参数为一个时，直接在sql语句中#{参数}，
+#### 如果在dao接口中声明方法时的参数为多个时，需要在每个参数前面加上@Param()注解，然后在映射文件中直接写对应的key值，也就是注解里面的值
