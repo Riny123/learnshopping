@@ -1,9 +1,12 @@
 package com.neuedu.service.impl;
 
+import com.neuedu.common.Const;
+import com.neuedu.common.ResponseCode;
 import com.neuedu.common.ServerReponse;
 import com.neuedu.dao.UserInfoMapper;
 import com.neuedu.pojo.UserInfo;
 import com.neuedu.service.IUserService;
+import com.neuedu.utils.MD5Utils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,12 +32,19 @@ public class UserServiceImpl implements IUserService {
         /*StringUtils.isEmpty()判断字符串是不是空的，它不能判断" "是空的*/
 
         //step2:检查username是否存在
-        int result = userInfoMapper.checkUsername(username);
+        /*int result = userInfoMapper.checkUsername(username);
         if (result <= 0){//用户名不存在
             return ServerReponse.createServerResponseByError("用户名不存在");
+        }*/
+
+        /*调用check_valid()方法*/
+        ServerReponse serverReponse = check_valid(username,Const.USERNAME);
+        if (serverReponse.isSuccess()){
+            return ServerReponse.createServerResponseByError(ResponseCode.NOT_EXISTS_USERNAME.getStatus(),ResponseCode.NOT_EXISTS_USERNAME.getMsg());
         }
+
         //step3:根据用户名和密码查询
-        UserInfo userInfo = userInfoMapper.selectUserByUsernameAndPassword(username, password);
+        UserInfo userInfo = userInfoMapper.selectUserByUsernameAndPassword(username, MD5Utils.getMD5Code(password));
         if (userInfo == null){//密码错误
             return ServerReponse.createServerResponseByError("密码错误");
         }
@@ -47,10 +57,67 @@ public class UserServiceImpl implements IUserService {
     /*注册*/
     @Override
     public ServerReponse register(UserInfo userInfo) {
-        int count =  userInfoMapper.insert(userInfo);
-        if (count > 0){
-            return ServerReponse.createServerResponseBySuccess();
+        //step1:进行参数的非空校验
+        if (userInfo == null){
+            return ServerReponse.createServerResponseByError(ResponseCode.PARAM_EMPTY.getStatus(),ResponseCode.PARAM_EMPTY.getMsg());
         }
-        return ServerReponse.createServerResponseByError();
+        //step2:判断用户名是否已经存在
+        String username = userInfo.getUsername();
+        /*int checkUsername = userInfoMapper.checkUsername(username);
+        if (checkUsername > 0){//判断用户名已存在
+            return ServerReponse.createServerResponseByError(ResponseCode.EXISTS_USERNAME.getStatus(),ResponseCode.EXISTS_USERNAME.getMsg());
+        }*/
+        /*调用check_valid()方法*/
+        ServerReponse serverReponse = check_valid(username,Const.USERNAME);
+        if (!serverReponse.isSuccess()){
+            return ServerReponse.createServerResponseByError(ResponseCode.EXISTS_USERNAME.getStatus(),ResponseCode.EXISTS_USERNAME.getMsg());
+        }
+
+        //step3:判断邮箱是否已经存在
+        String email = userInfo.getEmail();
+        /*int checkEmail = userInfoMapper.checkEmail(email);
+        if (checkEmail < 0){
+            return ServerReponse.createServerResponseByError(ResponseCode.EXISTS_EMAIL.getStatus(),ResponseCode.EXISTS_EMAIL.getMsg());
+        }*/
+        /*调用check_valid()方法*/
+        ServerReponse serverReponse1 = check_valid(email,Const.EMAIL);
+        if (!serverReponse1.isSuccess()){
+            return ServerReponse.createServerResponseByError(ResponseCode.EXISTS_EMAIL.getStatus(),ResponseCode.EXISTS_EMAIL.getMsg());
+        }
+
+        //step4:注册
+        userInfo.setPassword(MD5Utils.getMD5Code(userInfo.getPassword()));
+        userInfo.setRole(Const.USER_ROLE_CUSTOMER);
+        int insert = userInfoMapper.insert(userInfo);
+        //step5:返回结果
+        if (insert > 0){
+            return ServerReponse.createServerResponseBySuccess("注册成功");
+        }
+        return ServerReponse.createServerResponseByError("注册失败");
+    }
+
+    /*检查用户名或密码是否有效*/
+    @Override
+    public ServerReponse check_valid(String str, String type) {
+        //step1:参数的非空校验
+        if (StringUtils.isBlank(str) || StringUtils.isBlank(type)){
+            return ServerReponse.createServerResponseByError("参数不能为空");
+        }
+        //step2:判断用户名或者邮箱存在
+        if (type.equals(Const.USERNAME)){
+            int username_result = userInfoMapper.checkUsername(str);
+            if (username_result > 0){
+                return ServerReponse.createServerResponseByError(ResponseCode.EXISTS_USERNAME.getStatus(),ResponseCode.EXISTS_USERNAME.getMsg());
+            }
+            return ServerReponse.createServerResponseBySuccess("用户名不存在");
+        }else if (type.equals(Const.EMAIL)){
+            int email_result = userInfoMapper.checkEmail(str);
+            if (email_result > 0){
+                return ServerReponse.createServerResponseByError(ResponseCode.EXISTS_EMAIL.getStatus(),ResponseCode.EXISTS_EMAIL.getMsg());
+            }
+            return ServerReponse.createServerResponseBySuccess("邮箱不存在");
+        }
+        //step3:返回结果
+        return ServerReponse.createServerResponseBySuccess("type参数传递有误");
     }
 }

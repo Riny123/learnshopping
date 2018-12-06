@@ -17,4 +17,9 @@ public interface IUserService {
      */
     public ServerReponse register(UserInfo userInfo);
 
+    /**
+     * 检查用户名或邮箱是否有效
+     */
+    public ServerReponse check_valid(String str,String type);
+
 }

@@ -52,6 +52,11 @@ public interface UserInfoMapper {
     int checkUsername(String username);
 
     /**
+     *登录：用来校验邮箱
+     */
+    int checkEmail(String email);
+
+    /**
      * 登录：利用用户名和密码查询信息
      */
     UserInfo selectUserByUsernameAndPassword(@Param("username") String username,@Param("password") String password);
