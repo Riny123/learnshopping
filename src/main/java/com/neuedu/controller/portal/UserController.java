@@ -3,7 +3,6 @@ package com.neuedu.controller.portal;
 import com.neuedu.common.Const;
 import com.neuedu.common.ResponseCode;
 import com.neuedu.common.ServerReponse;
-import com.neuedu.dao.UserInfoMapper;
 import com.neuedu.pojo.UserInfo;
 import com.neuedu.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,6 +112,42 @@ public class UserController {
     @RequestMapping(value = "forget_reset_password.do")
     public ServerReponse forget_reset_password(String username,String passwordNew,String forgetToken){
         return iUserService.forget_reset_password(username, passwordNew, forgetToken);
+    }
+
+    /**
+     * 登录状态下重置密码
+     */
+    @RequestMapping(value = "reset_password.do")
+    public ServerReponse reset_password(HttpSession session,String passwordOld,String passwordNew){
+        Object object = session.getAttribute(Const.CURRENTUSER);
+        if (object != null && object instanceof UserInfo){
+            UserInfo userInfo = (UserInfo) object;
+            return iUserService.reset_password(userInfo.getUsername(),passwordOld,passwordNew);
+        }
+        return ServerReponse.createServerResponseByError(ResponseCode.USER_NOT_LOGIN.getStatus(),ResponseCode.USER_NOT_LOGIN.getMsg());
+    }
+
+    /**
+     * 登录状态下更新个人信息
+     */
+    @RequestMapping(value = "update_information.do")
+    public ServerReponse update_information(HttpSession session,UserInfo user){
+        Object object = session.getAttribute(Const.CURRENTUSER);
+        if (object != null && object instanceof UserInfo){
+            UserInfo userInfo = (UserInfo) object;
+            user.setId(userInfo.getId());
+            return iUserService.update_information(user);
+        }
+        return ServerReponse.createServerResponseByError(ResponseCode.USER_NOT_LOGIN.getStatus(),ResponseCode.USER_NOT_LOGIN.getMsg());
+    }
+
+    /**
+     * 退出登录
+     */
+    @RequestMapping(value = "logout.do")
+    public ServerReponse logout(HttpSession session){
+        session.removeAttribute(Const.CURRENTUSER);
+        return ServerReponse.createServerResponseBySuccess("已退出登录");
     }
 
 }

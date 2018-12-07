@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class TokenCache {
 
+    //方法链的方式声明方法：获取缓存对象
     /*LoadingCache是谷歌guava里面的一个类，CacheBuilder也是里面的一个类*/
     private static LoadingCache<String,String> localCache = CacheBuilder.newBuilder()
             .initialCapacity(1000)//初始化缓存项为1000

@@ -21,7 +21,9 @@ public class UserServiceImpl implements IUserService {
     @Autowired
     UserInfoMapper userInfoMapper;
 
-    /*登录*/
+    /**
+     * 用户登录
+     */
     @Override
     public ServerReponse login(String username, String password) {
         //step1:进行参数的非空校验
@@ -57,12 +59,14 @@ public class UserServiceImpl implements IUserService {
         return ServerReponse.createServerResponseBySuccess(userInfo,null);
     }
 
-    /*注册*/
+    /**
+     * 注册
+     */
     @Override
     public ServerReponse register(UserInfo userInfo) {
         //step1:进行参数的非空校验
         if (userInfo == null){
-            return ServerReponse.createServerResponseByError(ResponseCode.PARAM_EMPTY.getStatus(),ResponseCode.PARAM_EMPTY.getMsg());
+            return ServerReponse.createServerResponseByError(ResponseCode.NOT_PARAM_EMPTY.getStatus(),ResponseCode.NOT_PARAM_EMPTY.getMsg());
         }
         //step2:判断用户名是否已经存在
         String username = userInfo.getUsername();
@@ -99,12 +103,14 @@ public class UserServiceImpl implements IUserService {
         return ServerReponse.createServerResponseByError("注册失败");
     }
 
-    /*检查用户名或密码是否有效*/
+    /**
+     * 检查用户名或密码是否有效
+     */
     @Override
     public ServerReponse check_valid(String str, String type) {
         //step1:参数的非空校验
         if (StringUtils.isBlank(str) || StringUtils.isBlank(type)){
-            return ServerReponse.createServerResponseByError("参数不能为空");
+            return ServerReponse.createServerResponseByError(ResponseCode.NOT_PARAM_EMPTY.getStatus(),ResponseCode.NOT_PARAM_EMPTY.getMsg());
         }
         //step2:判断用户名或者邮箱存在
         if (type.equals(Const.USERNAME)){
@@ -124,11 +130,16 @@ public class UserServiceImpl implements IUserService {
         return ServerReponse.createServerResponseBySuccess("type参数传递有误");
     }
 
+    /**
+     * 忘记密码：获取用户密保问题
+     * @param username
+     * @return
+     */
     @Override
     public ServerReponse forget_get_question(String username) {
         //step1:参数的非空校验
         if (StringUtils.isBlank(username)){
-            return ServerReponse.createServerResponseByError(ResponseCode.PARAM_EMPTY.getStatus(),ResponseCode.PARAM_EMPTY.getMsg());
+            return ServerReponse.createServerResponseByError(ResponseCode.NOT_PARAM_EMPTY.getStatus(),ResponseCode.NOT_PARAM_EMPTY.getMsg());
         }
         //step2:判断用户名是否存在
         ServerReponse serverReponse = check_valid(username,Const.USERNAME);
@@ -144,13 +155,20 @@ public class UserServiceImpl implements IUserService {
         return ServerReponse.createServerResponseBySuccess(question,null);
     }
 
+    /**
+     * 忘记密码：提交用户输入的密保问题答案
+     * @param username
+     * @param question
+     * @param answer
+     * @return
+     */
     @Override
     public ServerReponse forget_check_answer(String username, String question, String answer) {
         //step1:参数的非空校验
         if (StringUtils.isBlank(username) || StringUtils.isBlank(question) || StringUtils.isBlank(answer)){
-            return ServerReponse.createServerResponseByError(ResponseCode.PARAM_EMPTY.getStatus(),ResponseCode.PARAM_EMPTY.getMsg());
+            return ServerReponse.createServerResponseByError(ResponseCode.NOT_PARAM_EMPTY.getStatus(),ResponseCode.NOT_PARAM_EMPTY.getMsg());
         }
-        //step2:根据username,question,answer查询
+        //step2:校验答案，根据username,question,answer看能不能查询出记录
         int select = userInfoMapper.selectByUsernameAndQuestionAndAnswer(username, question, answer);
         if (select == 0){
             return ServerReponse.createServerResponseByError(ResponseCode.ANSWER_ERROR.getStatus(),ResponseCode.ANSWER_ERROR.getMsg());
@@ -159,16 +177,23 @@ public class UserServiceImpl implements IUserService {
         //step3:服务端生成一个token，保存，并将token返回给客户端
         /*生成的forgetToken是唯一的，通过UUID生成，UUID是生成的是一个唯一的，随机生成一个字符串，是唯一的*/
         String forgetToken = UUID.randomUUID().toString();
-        /*用到谷歌的一个guava cache（guava缓存）,key也要确保是唯一的，所以用用户名来作为key*/
+        /*用到谷歌的一个guava cache（guava缓存）,key也要确保是唯一的，所以用username来作为key*/
         TokenCache.set(username,forgetToken);
         return ServerReponse.createServerResponseBySuccess(forgetToken);
     }
 
+    /**
+     * 忘记密码：重置密码
+     * @param username
+     * @param passwordNew
+     * @param forgetToken
+     * @return
+     */
     @Override
     public ServerReponse forget_reset_password(String username, String passwordNew, String forgetToken) {
         //step1:参数的非空校验
         if (StringUtils.isBlank(username) || StringUtils.isBlank(passwordNew) || StringUtils.isBlank(forgetToken)){
-            return ServerReponse.createServerResponseByError(ResponseCode.PARAM_EMPTY.getStatus(),ResponseCode.PARAM_EMPTY.getMsg());
+            return ServerReponse.createServerResponseByError(ResponseCode.NOT_PARAM_EMPTY.getStatus(),ResponseCode.NOT_PARAM_EMPTY.getMsg());
         }
         //step2:校验token
         String token = TokenCache.get(username);
@@ -185,6 +210,56 @@ public class UserServiceImpl implements IUserService {
         if (update_password > 0){
             return ServerReponse.createServerResponseBySuccess("修改密码成功");
         }
+        //step4:返回结果
         return ServerReponse.createServerResponseByError("密码修改失败");
     }
+
+    /**
+     * 登录状态下修改密码
+     * @param username
+     * @param passwordOld
+     * @param passwordNew
+     * @return
+     */
+    @Override
+    public ServerReponse reset_password(String username,String passwordOld, String passwordNew) {
+        //step1:参数的非空校验
+        if (StringUtils.isBlank(username) || StringUtils.isBlank(passwordOld) || StringUtils.isBlank(passwordNew)){
+            return ServerReponse.createServerResponseByError(ResponseCode.NOT_PARAM_EMPTY.getStatus(),ResponseCode.NOT_PARAM_EMPTY.getMsg());
+        }
+        //step2:根据用户名和旧密码查询用户
+        UserInfo userInfo = userInfoMapper.selectUserByUsernameAndPassword(username,MD5Utils.getMD5Code(passwordOld));
+        if (userInfo == null){
+            return ServerReponse.createServerResponseByError("旧密码错误");
+        }
+        //step3:修改密码
+        userInfo.setPassword(MD5Utils.getMD5Code(passwordNew));
+        int result = userInfoMapper.updateByPrimaryKey(userInfo);
+        if (result <= 0){
+            return ServerReponse.createServerResponseByError("密码修改失败");
+        }
+        //step4:返回结果
+        return ServerReponse.createServerResponseBySuccess("密码修改成功");
+    }
+
+    /**
+     * 登录状态下修改个人信息
+     * @param user
+     * @return
+     */
+    @Override
+    public ServerReponse update_information(UserInfo user) {
+        //step1:参数的非空校验
+        if (user == null){
+            return ServerReponse.createServerResponseByError(ResponseCode.NOT_PARAM_EMPTY.getStatus(),ResponseCode.NOT_PARAM_EMPTY.getMsg());
+        }
+        //step2:修改用户信息
+        int result = userInfoMapper.updateUserBySelectActive(user);
+        if (result <= 0){
+            return ServerReponse.createServerResponseByError("修改信息失败");
+        }
+        //step3:处理结果
+        return ServerReponse.createServerResponseBySuccess("修改个人信息成功");
+    }
+
 }

@@ -5,7 +5,7 @@ package com.neuedu.common;
  */
 public enum ResponseCode {
 
-    PARAM_EMPTY(2,"参数为空"),
+    NOT_PARAM_EMPTY(2,"参数不能为空"),
     EXISTS_USERNAME(3,"用户名已存在"),
     EXISTS_EMAIL(4,"邮箱已存在"),
     NOT_EXISTS_USERNAME(5,"用户名不存在"),

@@ -76,4 +76,9 @@ public interface UserInfoMapper {
      */
     int updateUserPassword(@Param("username") String username,@Param("passwordNew") String passwordNew);
 
+    /**
+     * 登录后修改个人信息
+     */
+    int updateUserBySelectActive(UserInfo user);
+
 }
