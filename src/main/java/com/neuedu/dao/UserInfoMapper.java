@@ -61,4 +61,19 @@ public interface UserInfoMapper {
      */
     UserInfo selectUserByUsernameAndPassword(@Param("username") String username,@Param("password") String password);
 
+    /**
+     * 忘记密码：通过username查询密保问题
+     */
+    String getQuestionByUsername(String username);
+
+    /**
+     * 通过username,question,answer查询
+     */
+    int selectByUsernameAndQuestionAndAnswer(@Param("username") String username,@Param("question") String question,@Param("answer") String answer);
+
+    /**
+     * 修改用户密码
+     */
+    int updateUserPassword(@Param("username") String username,@Param("passwordNew") String passwordNew);
+
 }

@@ -91,4 +91,28 @@ public class UserController {
         return ServerReponse.createServerResponseByError(ResponseCode.USER_NOT_LOGIN.getStatus(),ResponseCode.USER_NOT_LOGIN.getMsg());
     }
 
+    /**
+     * 根据用户名查询密保问题
+     */
+    @RequestMapping(value = "forget_get_question")
+    public ServerReponse forget_get_question(String username){
+        return iUserService.forget_get_question(username);
+    }
+
+    /**
+     * 提交问题答案接口
+     */
+    @RequestMapping(value = "forget_check_answer.do")
+    public ServerReponse forget_check_answer(String username,String question,String answer){
+        return iUserService.forget_check_answer(username, question, answer);
+    }
+
+    /**
+     * 忘记密码的重设密码
+     */
+    @RequestMapping(value = "forget_reset_password.do")
+    public ServerReponse forget_reset_password(String username,String passwordNew,String forgetToken){
+        return iUserService.forget_reset_password(username, passwordNew, forgetToken);
+    }
+
 }

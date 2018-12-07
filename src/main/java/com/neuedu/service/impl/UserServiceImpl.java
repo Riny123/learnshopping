@@ -7,9 +7,12 @@ import com.neuedu.dao.UserInfoMapper;
 import com.neuedu.pojo.UserInfo;
 import com.neuedu.service.IUserService;
 import com.neuedu.utils.MD5Utils;
+import com.neuedu.utils.TokenCache;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements IUserService {
@@ -119,5 +122,69 @@ public class UserServiceImpl implements IUserService {
         }
         //step3:返回结果
         return ServerReponse.createServerResponseBySuccess("type参数传递有误");
+    }
+
+    @Override
+    public ServerReponse forget_get_question(String username) {
+        //step1:参数的非空校验
+        if (StringUtils.isBlank(username)){
+            return ServerReponse.createServerResponseByError(ResponseCode.PARAM_EMPTY.getStatus(),ResponseCode.PARAM_EMPTY.getMsg());
+        }
+        //step2:判断用户名是否存在
+        ServerReponse serverReponse = check_valid(username,Const.USERNAME);
+        if (serverReponse.isSuccess()){//用户不存在
+            return ServerReponse.createServerResponseByError(ResponseCode.NOT_EXISTS_USERNAME.getStatus(),ResponseCode.NOT_EXISTS_USERNAME.getMsg());
+        }
+        //step3:通过用户名查询密保问题
+        String question = userInfoMapper.getQuestionByUsername(username);
+        if (question == null || question.equals("")){
+            return ServerReponse.createServerResponseByError(ResponseCode.NOT_QUESTION.getStatus(),ResponseCode.NOT_QUESTION.getMsg());
+        }
+        //step4:返回处理结果
+        return ServerReponse.createServerResponseBySuccess(question,null);
+    }
+
+    @Override
+    public ServerReponse forget_check_answer(String username, String question, String answer) {
+        //step1:参数的非空校验
+        if (StringUtils.isBlank(username) || StringUtils.isBlank(question) || StringUtils.isBlank(answer)){
+            return ServerReponse.createServerResponseByError(ResponseCode.PARAM_EMPTY.getStatus(),ResponseCode.PARAM_EMPTY.getMsg());
+        }
+        //step2:根据username,question,answer查询
+        int select = userInfoMapper.selectByUsernameAndQuestionAndAnswer(username, question, answer);
+        if (select == 0){
+            return ServerReponse.createServerResponseByError(ResponseCode.ANSWER_ERROR.getStatus(),ResponseCode.ANSWER_ERROR.getMsg());
+        }
+        //select!=0，执行下面
+        //step3:服务端生成一个token，保存，并将token返回给客户端
+        /*生成的forgetToken是唯一的，通过UUID生成，UUID是生成的是一个唯一的，随机生成一个字符串，是唯一的*/
+        String forgetToken = UUID.randomUUID().toString();
+        /*用到谷歌的一个guava cache（guava缓存）,key也要确保是唯一的，所以用用户名来作为key*/
+        TokenCache.set(username,forgetToken);
+        return ServerReponse.createServerResponseBySuccess(forgetToken);
+    }
+
+    @Override
+    public ServerReponse forget_reset_password(String username, String passwordNew, String forgetToken) {
+        //step1:参数的非空校验
+        if (StringUtils.isBlank(username) || StringUtils.isBlank(passwordNew) || StringUtils.isBlank(forgetToken)){
+            return ServerReponse.createServerResponseByError(ResponseCode.PARAM_EMPTY.getStatus(),ResponseCode.PARAM_EMPTY.getMsg());
+        }
+        //step2:校验token
+        String token = TokenCache.get(username);
+        if (token == null){
+            return ServerReponse.createServerResponseByError("token过期失效");
+        }
+        /*如果两个token是不等的*/
+        if (!token.equals(forgetToken)){
+            return ServerReponse.createServerResponseByError("无效的token");
+        }
+        //如果两个token相等，才可以修改密码
+        //step3:修改密码
+        int update_password = userInfoMapper.updateUserPassword(username,MD5Utils.getMD5Code(passwordNew));
+        if (update_password > 0){
+            return ServerReponse.createServerResponseBySuccess("修改密码成功");
+        }
+        return ServerReponse.createServerResponseByError("密码修改失败");
     }
 }

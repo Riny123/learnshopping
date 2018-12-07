@@ -9,7 +9,9 @@ public enum ResponseCode {
     EXISTS_USERNAME(3,"用户名已存在"),
     EXISTS_EMAIL(4,"邮箱已存在"),
     NOT_EXISTS_USERNAME(5,"用户名不存在"),
-    USER_NOT_LOGIN(6,"用户名未登录")
+    USER_NOT_LOGIN(6,"用户名未登录"),
+    NOT_QUESTION(7,"未设置找回密码问题"),
+    ANSWER_ERROR(8,"问题答案错误")
     ;
     private int status;
     private String msg;

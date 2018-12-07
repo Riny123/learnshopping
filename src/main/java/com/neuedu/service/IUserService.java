@@ -22,4 +22,19 @@ public interface IUserService {
      */
     public ServerReponse check_valid(String str,String type);
 
+    /**
+     * 根据用户名查询密保问题
+     */
+    public ServerReponse forget_get_question(String username);
+
+    /**
+     * 提交问题答案
+     */
+    public ServerReponse forget_check_answer(String username,String question,String answer);
+
+    /**
+     * 忘记密码的重设密码
+     */
+    public ServerReponse forget_reset_password(String username,String passwordNew,String forgetToken);
+
 }
