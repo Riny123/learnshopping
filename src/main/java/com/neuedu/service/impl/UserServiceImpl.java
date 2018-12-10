@@ -22,7 +22,7 @@ public class UserServiceImpl implements IUserService {
     UserInfoMapper userInfoMapper;
 
     /**
-     * 用户登录
+     * 登录
      */
     @Override
     public ServerReponse login(String username, String password) {
@@ -94,7 +94,8 @@ public class UserServiceImpl implements IUserService {
 
         //step4:注册
         userInfo.setPassword(MD5Utils.getMD5Code(userInfo.getPassword()));
-        userInfo.setRole(Const.USER_ROLE_CUSTOMER);
+//        userInfo.setRole(Const.USER_ROLE_CUSTOMER);
+        userInfo.setRole(Const.USER_ROLE_ADMIN);
         int insert = userInfoMapper.insert(userInfo);
         //step5:返回结果
         if (insert > 0){

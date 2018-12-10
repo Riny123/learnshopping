@@ -11,7 +11,8 @@ public enum ResponseCode {
     NOT_EXISTS_USERNAME(5,"用户名不存在"),
     USER_NOT_LOGIN(6,"用户名未登录"),
     NOT_QUESTION(7,"未设置找回密码问题"),
-    ANSWER_ERROR(8,"问题答案错误")
+    ANSWER_ERROR(8,"问题答案错误"),
+    NOT_AUTHORITY(9,"无权限操作")
     ;
     private int status;
     private String msg;
