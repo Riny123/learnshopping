@@ -48,8 +48,9 @@ public interface IUserService {
     ServerReponse update_information(UserInfo user);
 
     /**
-     * 后台管理员登录
+     * 后台--查看用户列表
      */
+    ServerReponse list(Integer role,Integer pageNum,Integer pageSize);
 
 
 }

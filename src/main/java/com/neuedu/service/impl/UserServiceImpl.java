@@ -1,5 +1,7 @@
 package com.neuedu.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.neuedu.common.Const;
 import com.neuedu.common.ResponseCode;
 import com.neuedu.common.ServerReponse;
@@ -12,6 +14,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -263,4 +266,20 @@ public class UserServiceImpl implements IUserService {
         return ServerReponse.createServerResponseBySuccess("修改个人信息成功");
     }
 
+    /**
+     * 后台--查看用户列表
+     */
+    @Override
+    public ServerReponse list(Integer role,Integer pageNum, Integer pageSize) {
+        //step1:分页
+        PageHelper.startPage(pageNum,pageSize);
+        //step2:根据角色查询用户信息，管理员只能查看role=0的用户信息
+        List<UserInfo> userInfoList = userInfoMapper.selectUserByRole(role);
+        if (userInfoList != null && userInfoList.size() > 0){
+            PageInfo pageInfo = new PageInfo(userInfoList);
+            return ServerReponse.createServerResponseBySuccess(pageInfo,null);
+        }
+        //step3:返回结果
+        return ServerReponse.createServerResponseByError("列表查询失败");
+    }
 }

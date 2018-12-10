@@ -81,4 +81,9 @@ public interface UserInfoMapper {
      */
     int updateUserBySelectActive(UserInfo user);
 
+    /**
+     * 后台--根据角色查询用户信息
+     */
+    List<UserInfo> selectUserByRole(Integer role);
+
 }

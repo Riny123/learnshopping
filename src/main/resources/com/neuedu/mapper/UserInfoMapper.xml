@@ -125,4 +125,11 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
 
+  <select id="selectUserByRole" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, username, password, email, phone, question, answer, role, create_time,
+    update_time
+    from neuedu_user
+    where role = 0
+  </select>
+
 </mapper>
